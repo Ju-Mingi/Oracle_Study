@@ -27,3 +27,42 @@ FROM ex2_2;
 INSERT INTO ex2_2 (column3) VALUES ('È«±æµ¿');
 
 SELECT column3, LENGTH(column3) AS len3, LENGTHB(column3) AS bytelen FROM ex2_2;
+
+CREATE TABLE ex2_3(
+COL_INT INTEGER,
+COL_DEC DECIMAL,
+COL_NUM NUMBER
+);
+
+SELECT column_id, column_name, data_type, data_length
+    FROM user_tab_cols
+    WHERE table_name = 'EX2_3'
+    ORDER BY column_id;
+
+CREATE TABLE EX2_4(
+    COL_FLOT1 FLOAT(32),
+    COL_FLOT2 FLOAT
+);
+
+INSERT INTO ex2_4 (col_flot1, col_flot2) VALUES (1234567891234, 1234567891234);
+
+CREATE TABLE EX2_5(
+    COL_DATE DATE,
+    COL_TIMESTAMP TIMESTAMP
+);
+
+INSERT INTO EX2_5 VALUES (SYSDATE, SYSTIMESTAMP);
+SELECT *
+FROM EX2_5;
+
+
+CREATE TABLE EX2_6(
+    COL_NULL VARCHAR2(10),
+    COL_NOT_NULL VARCHAR2(10) NOT NULL
+);
+
+INSERT INTO EX2_6 VALUES ('AA','BB');
+
+SELECT constraint_name, constraint_type, table_name, search_condition
+FROM user_constraints
+WHERE table_name = 'EX2_6';
