@@ -66,3 +66,33 @@ INSERT INTO EX2_6 VALUES ('AA','BB');
 SELECT constraint_name, constraint_type, table_name, search_condition
 FROM user_constraints
 WHERE table_name = 'EX2_6';
+
+CREATE TABLE EX2_7(
+COL_UNIQUE_NULL VARCHAR2(10) UNIQUE,
+COL_UNIQUE_NNULL VARCHAR2(10) UNIQUE NOT NULL,
+COL_UNIQUE VARCHAR2(10),
+CONSTRAINTS unique_nm1 UNIQUE (COL_UNIQUE)
+);
+
+SELECT constraint_name, constraint_type, table_name, search_condition FROM user_constraints WHERE table_name = 'EX2_7';
+
+INSERT INTO EX2_7 VALUES ('AA', 'AA', 'AA');
+INSERT INTO EX2_7 VALUES ('AA', 'AA', 'AA');
+
+INSERT INTO EX2_7 VALUES ('', 'BB', 'BB');
+INSERT INTO EX2_7 VALUES ('', 'CC', 'CC');
+
+CREATE TABLE EX2_8(
+    COL1 VARCHAR2(10) PRIMARY KEY,
+    COL2 VARCHAR2(10)
+);
+
+SELECT constraint_name, constraint_type, table_name, search_condition
+FROM user_constraints
+WHERE table_name = 'EX2_8';
+
+--INSERT INTO EX2_8 VALUES ('','AA'); NULL 입력 불가
+
+INSERT INTO EX2_8 VALUES ('AA','AA');
+
+--INSERT INTO EX2_8 VALUES ('AA','AA'); 무결성 제약 조건 위배
