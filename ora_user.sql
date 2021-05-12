@@ -96,3 +96,18 @@ WHERE table_name = 'EX2_8';
 INSERT INTO EX2_8 VALUES ('AA','AA');
 
 --INSERT INTO EX2_8 VALUES ('AA','AA'); 무결성 제약 조건 위배
+
+CREATE TABLE EX2_9(
+num1 NUMBER
+CONSTRAINTS check1 CHECK (num1 BETWEEN 1 AND 9),
+gender VARCHAR2(10)
+CONSTRAINTS check2 CHECK (gender IN ('MALE','FEMALE'))
+);
+
+SELECT constraint_name, constraint_type, table_name, search_condition
+FROM user_constraints
+WHERE table_name = 'EX2_9';
+
+--INSERT INTO EX2_9 VALUES (10, 'MAN'); <- 제약조건 위배
+
+INSERT INTO EX2_9 VALUES (5,'FEMALE'); 
