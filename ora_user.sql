@@ -99,9 +99,9 @@ INSERT INTO EX2_8 VALUES ('AA','AA');
 
 CREATE TABLE EX2_9(
 num1 NUMBER
-CONSTRAINTS check1 CHECK (num1 BETWEEN 1 AND 9),
+CONSTRAINT check1 CHECK (num1 BETWEEN 1 AND 9),
 gender VARCHAR2(10)
-CONSTRAINTS check2 CHECK (gender IN ('MALE','FEMALE'))
+CONSTRAINT check2 CHECK (gender IN ('MALE','FEMALE'))
 );
 
 SELECT constraint_name, constraint_type, table_name, search_condition
