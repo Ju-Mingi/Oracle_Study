@@ -174,3 +174,20 @@ SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE, TABLE_NAME, SEARCH_CONDITION
 CREATE TABLE EX2_9_1 AS
 SELECT *
     FROM EX2_9;
+
+-- 5.21
+
+SELECT a.employee_id, a.emp_name, a.department_id, b.department_name
+ FROM employees a,
+ departments b
+ WHERE a.department_id = b.department_id;
+ 
+ -- VIEW 만들기
+  
+ CREATE OR REPLACE VIEW EMP_DEPART_V1 AS
+ SELECT A.EMPLOYEE_ID, A.EMP_NAME, A.DEPARTMENT_ID,
+ B.DEPARTMENT_NAME
+ 
+ FROM EMPLOYEES A,
+    DEPARTMENTS B
+    WHERE A.DEPARTMENT_ID = B.DEPARTMENT_ID;
