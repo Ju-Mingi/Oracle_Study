@@ -325,3 +325,62 @@ FROM EMPLOYEES A,
     DEPARTMENTS B
 
 WHERE A.DEPARTMENT_ID = B.DEPARTMENT_ID;
+
+
+
+-- 210525
+
+
+CREATE TABLE EX3_1(
+COL1 VARCHAR2(10),
+COL2 NUMBER,
+COL3 DATE
+);
+
+-- INSERT 학습하기
+
+INSERT INTO EX3_1(COL3,COL1,COL2)
+VALUES (SYSDATE, 'DEF', 20);
+
+-- 실패 , 컬럼 값의 수와 순서, 데이터타입이 일치해야한다.
+INSERT INTO EX3_1(COL1,COL2,COL3)
+VALUES ('ABC', 10, 30);
+
+-- 컬럼명 기술 생략 형태
+
+-- 컬럼명을 생략하더라도 테이블 생성시 기술했던 컬럼 순서대로 값을 나열하면 가능
+INSERT INTO EX3_1
+VALUES ('GHI', 1, SYSDATE);
+
+
+INSERT INTO EX3_1 (COL1,COL2)
+VALUES ('GHI', 20);
+
+-- 컬럼명을 기술하지 않음 == 테이블에 있는 모든 컬럼에 값을 입력
+-- 총 3개의 컬럼이 있고 입력할 컬럼을 명시하지 않았으므로 2개 나열시 오류 발생
+INSERT INTO EX3_1
+VALUES ('GHI', 30);
+
+-- INSERT ~ SELECT 형태
+
+CREATE TABLE EX3_2(
+    emp_id NUMBER,
+    emp_name VARCHAR2(100)
+);
+
+-- 컬럼 순서와 데이터 타입을 맞춤
+INSERT INTO EX3_2(emp_id, emp_name)
+SELECT employee_id, emp_name
+FROM employees
+WHERE salary > 5000;
+
+-- 데이터 타입을 맞추지 않았는데 INSERT 성공
+-- 묵시적 형변환의 예시
+INSERT INTO EX3_1 (col1,col2,col3)
+VALUES (10,'10','2014-01-01');
+
+SELECT *
+FROM EX3_1;
+
+UPDATE EX3_1
+SET COL2 = 50;
