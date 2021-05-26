@@ -615,3 +615,101 @@ WHERE names LIKE '홍길%';
 SELECT *
 FROM ex3_5
 WHERE names LIKE '홍길_'; -- 한글자만 조회
+
+
+-- 예제 1
+-- 테이블 생성후 사원테이블에서 관리자 사번이 124, 급여가 2000에서 3000사이에 있는 사원의 사번, 사원명, 급여, 관리자사번 입력하는 INSERT문 작성
+
+CREATE TABLE ex3_6(
+    employee_id NUMBER(6,0),
+    emp_name VARCHAR(80 BYTE),
+    salary NUMBER(8,2),
+    manager_id NUMBER(6,0));
+    
+INSERT INTO ex3_6
+SELECT employee_id, emp_name, salary, manager_id
+FROM employees
+WHERE manager_id  = '124'
+AND salary BETWEEN '2000' AND '3000'
+ORDER BY employee_id;
+
+SELECT *
+FROM ex3_6;
+
+-- 예제2
+-- 관리자사번이 145번인 사원을 찾아 위 테이블에 있는 사원의 사번과 일치하면
+-- 보너스 금액에 자신의 급여의 1%를 보너스로 갱신하고
+-- ex3_3 테이블에 있는 사원의 사번과 일치하지 않는 사원을 신규입력 (보너스 금액은 급여의 0.5%) 하는 MERGE문 작성
+
+DELETE EX3_3;
+
+INSERT INTO EX3_3 (employee_id)
+SELECT e.employee_id
+FROM employees e, sales s
+WHERE e.employee_id = s.employee_id
+AND s.SALES_MONTH BETWEEN '200010' AND '200012'
+GROUP BY e.employee_id;
+
+SELECT *
+FROM ex3_3;
+
+MERGE INTO ex3_3 d
+USING (SELECT employee_id,salary,manager_id
+            FROM employees
+            WHERE manager_id = 145) b
+            ON (d.employee_id = b.employee_id)
+WHEN MATCHED THEN
+    UPDATE SET d.bonus_amt = d.bonus_amt + b.salary * 0.01
+WHEN NOT MATCHED THEN
+    INSERT (d.employee_id, d.bonus_amt) VALUES (b.employee_id, b.salary * 0.005);
+    
+SELECT *
+FROM EX3_3
+ORDER BY employee_id;
+
+-- 예제 3
+-- 사원테이블에서 커미션 값이 없는 사원의 사번과 사원명을 추출
+SELECT employee_id, emp_name
+FROM employees
+WHERE commission_pct IS NULL;
+
+-- 예제 4
+-- 아래 쿼리를 논리 연산자로 변환
+
+/*SELECT employee_id, salary
+FROM employees
+WHERE salary BETWEEN 2000 AND 2500
+ORDER BY employee_id;
+를 논리연산자로 변환하기*/
+
+
+SELECT employee_id, salary
+FROM employees
+WHERE salary >= 2000 AND salary <= 2500
+ORDER BY employee_id;
+
+-- 예제 5
+
+-- 두 쿼리를 ANY,ALL을 사용해서 동일한 결과를 추출하게 변경
+
+-- 1 쿼리
+SELECT employee_id, salary
+FROM employees
+WHERE salary IN (2000,3000,4000)
+ORDER BY employee_id;
+
+SELECT employee_id, salary
+FROM employees
+WHERE salary = ANY (2000,3000,4000)
+ORDER BY employee_id;
+
+-- 2 쿼리
+SELECT employee_id, salary
+FROM employees
+WHERE salary NOT IN (2000,3000,4000)
+ORDER BY employee_id;
+
+SELECT employee_id, salary
+FROM employees
+WHERE salary <>ALL (2000,3000,4000)
+ORDER BY employee_id;
