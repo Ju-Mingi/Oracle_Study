@@ -384,3 +384,234 @@ FROM EX3_1;
 
 UPDATE EX3_1
 SET COL2 = 50;
+
+
+-- 21.05.26
+
+-- EX3_3 테이블 생성
+CREATE TABLE EX3_3(
+    employee_id NUMBER,
+    bonus_amt NUMBER DEFAULT 0);
+ 
+ -- 조회   
+SELECT *
+FROM EX3_3;
+
+-- SALES 테이블에서 2000년 10월 ~ 200년 12월까지 매출을 달성한 사원번호 입력
+
+INSERT INTO EX3_3 (employee_id)
+SELECT e.employee_id
+FROM employees e, sales s
+WHERE e.employee_id = s.employee_id
+AND s.SALES_MONTH BETWEEN '200010' AND '200012'
+-- 사원번호의 중복을 제거함
+GROUP BY e.employee_id;
+
+-- 조회
+SELECT *
+FROM EX3_3
+ORDER BY employee_id;
+
+-- 관리자 사번이 ex3_3 테이블에 있는 사원의 사번과 일치하면 1% 보너스
+-- 일치 하지 않으면 급여의 0.1% 보너스 지급 (급여가 8000 미만인 사원만 해당)
+
+-- 사번 , 관리자 사번, 급여, 급여 * 0.01 조회
+SELECT employee_id, manager_id, salary,salary * 0.01
+FROM employees
+WHERE employee_id IN (SELECT employee_id FROM EX3_3);
+
+-- 사원테이블에서 관리자 사번이 146 인 것 중 ex3_3 테이블에 없는 사원의 사번, 관리자 사번, 급여, 급여*0.001 조회
+SELECT employee_id , manager_id, salary, salary * 0.001
+FROM employees
+WHERE employee_id NOT IN (SELECT employee_id FROM ex3_3)
+AND manager_id = 146;
+
+-- 병합하기
+MERGE INTO ex3_3 d -- ex3_3 테이블을 d 로 정의
+USING (SELECT employee_id, salary, manager_id
+            FROM employees
+            WHERE manager_id = 146) b -- 관리자 사번이 146
+            ON (d.employee_id = b.employee_id) -- d , b 조건이 같을 때 업데이트
+WHEN MATCHED THEN -- 조건이 맞다면
+    UPDATE SET d.bonus_amt = d.bonus_amt + b.salary * 0.01 -- 1% 보너스 지급
+WHEN NOT MATCHED THEN -- 조건이 틀리다면
+    INSERT (d.employee_id, d.bonus_amt) VALUES (b.employee_id, b.salary * 0.001) -- 0.1 보너스 지급
+    WHERE (b.salary < 8000); -- 급여가 8000 미만
+
+-- 조회
+SELECT *
+    FROM ex3_3
+    ORDER BY employee_id;
+    
+MERGE INTO ex3_3 d -- ex3_3 테이블을 d 로 정의
+USING (SELECT employee_id, salary, manager_id
+            FROM employees
+            WHERE manager_id = 146) b -- 관리자 사번이 146
+            ON (d.employee_id = b.employee_id) -- d , b 조건이 같을 때 업데이트
+WHEN MATCHED THEN -- 조건이 맞다면
+    UPDATE SET d.bonus_amt = d.bonus_amt + b.salary * 0.01 -- 1% 보너스 지급
+    DELETE WHERE (B.employee_id = 161) -- 조건에 맞는 161 사원 삭제
+WHEN NOT MATCHED THEN -- 조건이 틀리다면
+    INSERT (d.employee_id, d.bonus_amt) VALUES (b.employee_id, b.salary * 0.001) -- 0.1 보너스 지급
+    WHERE (b.salary < 8000); -- 급여가 8000 미만
+
+-- 조회
+SELECT *
+    FROM ex3_3
+    ORDER BY employee_id;
+
+
+-- 테이블에 있는 데이터 삭제
+
+DELETE EX3_3;
+
+-- 확인 하기
+SELECT *
+FROM EX3_3
+ORDER BY employee_id;
+
+-- 테이블의 파티션 삭제
+
+-- 파티션 조회
+SELECT partition_name
+FROM user_tab_partitions
+WHERE table_name = 'SALES';
+
+-- 삭제
+/* DELETE 테이블명 PARTITION 파티션명
+ WHERE DELETE 조건*/
+ 
+ -- COMMIT ROLLBACK TRUNCATE
+ 
+ CREATE TABLE EX3_4(
+    employee_id NUMBER);
+    
+INSERT INTO EX3_4 VALUES (100);
+
+SELECT *
+    FROM EX3_4;
+
+-- 실행 전까지는 세션에만 저장이 되어 잇기 때문에 데이터 베이스에 반영하기 위해서 커밋    
+COMMIT;
+
+-- 한번 실행하면 데이터가 완전히 삭제되고 복귀도 되지 않는다. 사용시 항상 주의해야한다.
+TRUNCATE TABLE EX3_4;
+
+-- 의사 컬럼
+
+-- ROWNUM = 쿼리에서 반환 되는 각 rows 에 대한 순서 값
+-- 데이터가 많은 경우는 시간이 오래걸림
+SELECT ROWNUM, employee_id
+FROM employees
+-- 조건을 붙여서 사용하면 편리하다.
+WHERE ROWNUM < 5;
+
+-- ROWID = 테이블에 저장된 각 rows가 저장된 주소값을 가르키는 의사컬럼
+SELECT ROWNUM, employee_id, ROWID
+FROM employees
+WHERE ROWNUM < 5;
+
+-- 문자 연산자
+
+-- 사번 - 사원명
+SELECT employee_id || '-' || emp_name AS employee_info
+FROM employees
+WHERE ROWNUM < 5;
+
+-- 표현식
+
+-- CASE 표현식 == CASE문
+SELECT employee_id, salary,
+    CASE WHEN salary <= 5000 AND salary <= 15000 THEN 'B등급'
+    ELSE 'A등급'
+    END AS salary_grade
+FROM employees;
+
+-- 조건식
+
+-- 급여가 2000 이거나 3000, 4000 인 사원을 추출
+SELECT employee_id, salary
+FROM employees
+WHERE salary = ANY (2000, 3000, 4000)
+ORDER BY employee_id;
+
+-- ANY 를 OR 로 변경 가능
+SELECT employee_id, salary
+FROM employees
+WHERE salary = 2000
+OR  salary = 3000
+OR salary = 4000
+ORDER BY employee_id;
+
+-- ALL 은 모든 조건을 동시에 만족해야한다.
+
+SELECT employee_id, salary
+FROM employees
+WHERE salary = ALL(2000, 3000, 4000)
+ORDER BY employee_id;
+
+-- SOME 은 ANY 와 동일하게 사용되며 동작
+
+-- 논리 조건식
+
+-- 급여가 3000 미만인 사원 출력
+SELECT employee_id, salary
+FROM employees
+WHERE NOT (salary >= 3000)
+ORDER BY employee_id;
+
+-- NULL 조건식
+
+SELECT employee_id,salary
+FROM employees
+WHERE (salary IS NOT NULL)
+ORDER BY employee_id;
+
+-- BETWEEN AND 조건식
+
+SELECT employee_id, salary
+FROM employees
+WHERE salary BETWEEN 2000 AND 2500
+ORDER BY employee_id;
+
+-- IN 조건식
+
+SELECT employee_id, salary
+FROM employees
+WHERE salary IN (2000, 3000, 4000)
+ORDER BY employee_id;
+
+-- EXISTS 조건식
+
+SELECT department_id, department_name
+FROM departments a
+WHERE EXISTS ( SELECT *
+                        FROM employees b
+                        WHERE a.department_id = b.department_id
+                        AND b.salary > 8900)
+ORDER BY a.department_name;
+
+-- LIKE 조건식
+-- 사원이름이 A 로 시작하는 사원을 조회
+SELECT emp_name
+FROM employees
+WHERE emp_name LIKE 'A%'
+ORDER BY emp_name;
+
+-- 예제 
+CREATE TABLE ex3_5(
+names VARCHAR2(30));
+
+INSERT INTO ex3_5 VALUES ('홍길동');
+INSERT INTO ex3_5 VALUES ('홍길똥');
+INSERT INTO ex3_5 VALUES ('홍길떵');
+INSERT INTO ex3_5 VALUES ('홍길띵');
+INSERT INTO ex3_5 VALUES ('홍길띵똥');
+
+SELECT *
+FROM ex3_5
+WHERE names LIKE '홍길%';
+
+SELECT *
+FROM ex3_5
+WHERE names LIKE '홍길_'; -- 한글자만 조회
