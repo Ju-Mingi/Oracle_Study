@@ -713,3 +713,248 @@ SELECT employee_id, salary
 FROM employees
 WHERE salary <>ALL (2000,3000,4000)
 ORDER BY employee_id;
+
+-- 21.05.27
+
+-- 절대값 반환 함수 ABS
+SELECT ABS(10), ABS(-10), ABS(-10.123)
+FROM DUAL;
+
+-- CEIL 매개변수 n과같거나 큰 정수를 반환
+
+SELECT CEIL(10.123), CEIL(10.541), CEIL(11.001)
+FROM DUAL;
+
+-- FLOOR 매개변수 n보다 작거나 가장 큰 정수를 반환
+
+SELECT FLOOR(10.123), FLOOR(10.541), FLOOR(11.001)
+FROM DUAL;
+
+-- ROUND(n,i) 반올림
+
+-- i 양수일 경우
+SELECT ROUND(10.154, 1), ROUND(10.154,2), ROUND(11.001)
+FROM DUAL;
+
+-- i 음수일 경우
+SELECT ROUND(0, 3), ROUND(115.155, -1), ROUND(115.155, -2)
+FROM DUAL;
+
+-- TRUNC(n1, n2)
+-- 반올림을 하지 않고 n1을 소수점 기준 n2 자리에서 무조건 잘라낸 결과 반환
+-- n2 생략가능, 디폴트 값 0, 양수의 경우 소수점 기준 오른쪽, 음수는 왼쪽 자르기
+
+SELECT TRUNC(115.155), TRUNC(115.155, 1), TRUNC(115.155, 2), TRUNC(115.155, -2)
+FROM DUAL;
+
+-- POWER(n2, n1) n2를 n1 제곱한 결과를 반환 (n2가 음수일 경우 n1은 정수만 올 수 있음)
+
+SELECT POWER(3, 2), POWER(3, 3), POWER(3, 3.0001)
+FROM DUAL;
+
+-- n2가 음수
+SELECT POWER(-3, 3.0001)
+FROM DUAL; -- ERROR
+
+-- SQRT n의 제곱근을 반환
+SELECT SQRT(2), SQRT(5)
+FROM DUAL;
+
+-- MOD(n2, n1)
+SELECT MOD(19,4), MOD(19.123, 4.2)
+FROM DUAL;
+
+-- REMAINDER(n2, n1) MOD와 반환값은 같지만 나머지를 구하는 내부적 연산 방법이 약간 다름
+
+SELECT REMAINDER(19, 4), REMAINDER(19.123, 4.2)
+FROM DUAL;
+
+-- EXP 지수 함수 e(2.71828183~) 의 n 제곱 반환
+-- LN 자연 로그 함수 밑수가 e
+-- LOG(n2, n1) 밑수를 n2로 하는 n1의 로그값 반환
+
+SELECT EXP(2), LN(2.713), LOG(10, 100)
+FROM DUAL;
+
+-- 문자 함수
+
+-- 첫문자는 대문자로 나머지는 소문자로 반환
+-- 첫문자 인식 기준 공백,알파벳(숫자 포함)을 제외한 문자를 인식
+SELECT INITCAP('NEVERSAYGOOBYE'), INITCAP('never6say*good가bye')
+FROM DUAL;
+
+-- LOWER 문자를 모두 소문자로
+-- UPPER 문자를 모두 대문자로
+SELECT LOWER('NEVER SAY GOODBYE'), UPPER('never say goobbye')
+FROM DUAL;
+
+-- CONCAT = || 연산자와 같이 매개변수로 들어오는 두 문자를 붙여서 반환
+SELECT CONCAT('I Have', ' A Dream'), 'I Have' || ' A Dream'
+FROM DUAL;
+
+-- SUBSTR 문자열 자르기 (char, pos, len)
+SELECT SUBSTR('ABCDEFG', 1, 4), SUBSTR('ABCDEFG', -1, 4)
+FROM DUAL;
+
+-- SUBSTRB 문자의 바이트 수 만큼 자르기
+SELECT SUBSTRB('ABCDEFG', 1, 4), SUBSTRB('가나다라마바사', 1, 4)
+FROM DUAL;
+
+-- LTRIM 왼쪽 기준으로 명시된 문자 한 번씩만 제거
+-- RTRIM 오른쪽 기준
+-- 보통 공백을 제거할 때 많이 사용
+SELECT LTRIM('ABCDEFGABC', 'ABC'),
+       LTRIM('가나다라', '가'),
+       RTRIM('ABCDEFGABC', 'ABC'),
+       RTRIM('가나다라', '라')
+FROM DUAL;
+
+-- LPAD(expr1,n,expr2)
+-- 매개변수로 들어온 expr2 문자열(생략 시 디폴트는 공백 한 문자) n자리만큼 왼쪽부터 채워
+-- expr1을 반환하는 함수
+-- RPAD는 오른쪽부터 채움
+SELECT LTRIM('가나다라', '나'), RTRIM('가나다라', '나')
+FROM DUAL;
+
+CREATE TABLE EX4_1(
+phone_num VARCHAR2(30));
+
+INSERT INTO ex4_1 VALUES ('111-1111');
+INSERT INTO ex4_1 VALUES ('111-2222');
+INSERT INTO ex4_1 VALUES ('111-3333');
+
+SELECT *
+FROM ex4_1;
+
+SELECT LPAD(phone_num, 12, '(02)')
+FROM ex4_1;
+
+SELECT RPAD(phone_num, 12, '(02)')
+FROM ex4_1;
+
+-- REPLACE 문자열 대체
+-- TRANSLATE 문자열 자체가 아닌 문자 한 글자씩 매핑하여 바꾼 결과 반환
+SELECT REPLACE('나는 너를 모르는데 너는 나를 알겠는가?', '나', '너')
+FROM DUAL;
+
+SELECT LTRIM(' ABC DEF '),
+       LTRIM(' ABC DEF '),
+       REPLACE(' ABC DEF ', ' ','')
+FROM DUAL;
+
+SELECT REPLACE('나는 너를 모르는데 너는 나를 알겠는가?', '나는', '너를') AS rep,
+       TRANSLATE('나는 너를 모르는데 너는 나를 알겠는가?', '나는', '너를') AS trn
+FROM DUAL;
+
+--SELECT employee_id,
+--       TRANSLATE(EMP_NAME,'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'thehillsarealivewiththesou')
+--       AS TRANS_NAME
+--FROM employees;
+
+-- INSTR(str, substr, pos, occur)
+-- str 문자열에서 substr과 일치하는 위치를 반환
+-- pos 는 시작위치로 디폴트는 1
+-- occur은 몇 번째 일치하는지를 명시하여 디폴트 1
+SELECT INSTR('내가 만약 외로울 때면, 내가 만약 괴로울 때면, 내가 만약 즐거울 때면', '만약') AS INSTR1,
+        INSTR('내가 만약 외로울 때면, 내가 만약 괴로울 때면, 내가 만약 즐거울 때면', '만약', 5) AS INSTR2,
+        INSTR('내가 만약 외로울 때면, 내가 만약 괴로울 때면, 내가 만약 즐거울 때면', '만약', 5, 2) AS INSTR3
+FROM DUAL;
+
+-- LENGTH 매개변수로 들어온 문자열의 개수를 반환, LENGTHB 해당 문자열의 바이트 수 반환
+SELECT LENGTH('대한민국'),LENGTHB('대한민국')
+FROM DUAL;
+
+-- 날짜 함수
+
+-- SYSDATE, SYSTIMESTAMP 현재 일자 시간을 반환
+SELECT SYSDATE, SYSTIMESTAMP
+FROM DUAL;
+
+-- ADD_MONTH(date, integer) 매개변수로 들어온 날짜에 integer만큼의 월을 더한 날짜를 반환
+SELECT ADD_MONTHS(SYSDATE, 1), ADD_MONTHS(SYSDATE, -1)
+FROM DUAL;
+
+-- MONTHS_BETWEEN(date1, date2) 두 날짜 사이의 개월 수 반환 date2가 date1 보다 빠른 날짜
+SELECT MONTHS_BETWEEN(SYSDATE, ADD_MONTHS(SYSDATE, 1)) mon1,
+       MONTHS_BETWEEN(ADD_MONTHS(SYSDATE, 1), SYSDATE) mon2
+FROM DUAL;
+
+-- LAST_DAY(date)
+-- date 날짜 기준으로 해당 월의 마지막 일자 반환
+SELECT LAST_DAY(SYSDATE)
+FROM DUAL;
+
+-- ROUND(date,format), TRUNC(date,format)
+-- 숫자함수이면서 날짜 함수로도 쓰임
+-- ROUND는 format에 따라 반올림한 날짜, TRUNC는 잘라낸 날짜를 반환
+SELECT SYSDATE, ROUND(SYSDATE, 'month'), TRUNC(SYSDATE, 'month')
+FROM DUAL;
+
+-- NEXT_DAY(date, char)
+-- date를 char에 명시한 날짜로 다음 주 주중 일자를 반환한다.
+SELECT NEXT_DAY(SYSDATE, '금요일')
+FROM DUAL;
+
+-- 변환 함수
+
+-- TO_CHAR(숫자 혹은 날짜,format)
+-- 숫자나 날짜를 문자로 변환해주는 함수
+-- 명시적 형변환
+SELECT TO_CHAR(123456789,'999,999,999')
+FROM DUAL;
+
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+FROM DUAL;
+
+-- TO_NUNBER(expr, format)
+-- 문자나 다른 유형의 숫자를 NUMBER 형으로 변환하는 함수
+SELECT TO_NUMBER('123456')
+FROM DUAL;
+
+-- TO_DATE(char, format), TO_TIMESTAMP(char, format)
+-- 문자를 날짜형으로 변환하는 함수
+-- DATE 는 DATE로 TIMESTAMP는 TIMESTAMP로
+
+SELECT TO_DATE('20210527', 'YYYY-MM-DD')
+FROM DUAL;
+
+SELECT TO_TIMESTAMP('12:18:50', 'HH24:MI:SS')
+FROM DUAL;
+
+-- NVL(expr1, expr2), NVL2(expr1,expr2,expr3)
+
+-- NVL = expr1이 NULL 일 경우 expr2로 반환
+-- NVL2 = NVL의 확장 = expr1이 NULL이 아니면 expr2 반환 NULL이면 expr3 반환
+
+SELECT NVL(manager_id, employee_id)
+FROM employees
+WHERE manager_id IS NULL;
+
+SELECT NVL2(commission_pct, salary + ( salary * commission_pct), salary) AS salary2
+FROM employees;
+
+-- COALESCE(expr1, expr2 ~)
+-- 매개 변수로 들어오는 표현식에서 NULL 이 아닌 첫 번째 표현식을 반환하는 함수
+SELECT employee_id, salary, commission_pct,
+        COALESCE (salary * commission_pct, salary) AS salary2
+FROM employees;
+
+-- LNNVL(조건식)
+-- 매개변수로 들어오느 조건식의 결과가 FALSE 나 UNKNOWN 이면 TRUE
+ -- TRUE이면 FALSE 반환
+ 
+ -- 커미션이 0.2인 사원 조회
+ SELECT employee_id, commission_pct
+ FROM employees
+ WHERE commission_pct < 0.2;
+ 
+ -- 커미션이 NULL인 사원까지 조회하기 (NVL 사용)
+ SELECT COUNT(*)
+ FROM employees
+ WHERE NVL(commission_pct, 0) < 0.2;
+ 
+ -- 커미션이 0.2 이상 조건이 TRUE -> FALSE 반환
+ SELECT COUNT(*)
+ FROM employees
+ WHERE LNNVL(commission_pct >= 0.2);
+ 
