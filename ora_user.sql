@@ -958,3 +958,78 @@ FROM employees;
  FROM employees
  WHERE LNNVL(commission_pct >= 0.2);
  
+--21.05.28
+ 
+ -- 기타함수
+ 
+ -- 최대 최소 값 찾기
+ SELECT GREATEST(1, 2, 3, 2),
+            LEAST(1, 2, 3, 2)
+FROM DUAL;
+ 
+ -- 문자도 가능하다
+ 
+ SELECT GREATEST('이순신',  '강감찬', '세종대왕'),
+            LEAST('이순신',  '강감찬', '세종대왕')
+FROM DUAL;
+
+-- DECODE(expr, search1, result1, search2, result2....,default)
+-- 비교대상 expr <- search(n) 과 같으면 result(n) 출력
+
+SELECT prod_id,
+    DECODE(channel_id, 3, 'Direct',
+                                 9, 'Direct',
+                                 5, 'Indirect',
+                                 4, 'Indirect',
+                                 'Ohters') decodes
+FROM sales
+WHERE rownum < 10;
+
+-- self check
+
+-- 1
+SELECT LPAD(SUBSTR(phone_number,5), 12, '(02)')
+FROM employees;
+
+-- 2
+
+SELECT employee_id 사원번호, emp_name 사원명, HIRE_DATE 입사일자, ROUND(MONTHS_BETWEEN(SYSDATE,HIRE_DATE)/12) 근속년수
+FROM employees
+WHERE  ROUND(MONTHS_BETWEEN(SYSDATE,HIRE_DATE)/12)>= 10
+ORDER BY ROUND(MONTHS_BETWEEN(SYSDATE,HIRE_DATE)/12);
+
+-- 3
+
+SELECT REPLACE(cust_main_phone_number, '-' , '/')
+FROM CUSTOMERS;
+
+-- 4
+
+SELECT TRANSLATE(cust_main_phone_number, '0123456789', 'ABCDEFGHIJ')
+FROM CUSTOMERS;
+
+-- 5
+
+SELECT SUBSTR(TO_NUMBER(TO_CHAR(SYSDATE, 'yyyymmdd')),1,4)  - cust_year_of_birth 나이
+FROM CUSTOMERS;
+
+SELECT DECODE(SUBSTR(SUBSTR(TO_NUMBER(TO_CHAR(SYSDATE, 'yyyymmdd')),1,4)  - cust_year_of_birth,1,1),
+                    3,'30대',
+                    4,'40대',
+                    5,'50대',
+                    '기타') 연령
+FROM CUSTOMERS;
+
+-- 6 
+
+SELECT 나이,
+CASE WHEN 나이 BETWEEN 20 AND 29 THEN '20대'
+        WHEN 나이 BETWEEN 30 AND 39 THEN '30대'
+        WHEN 나이 BETWEEN 40 AND 49 THEN '40대'
+        WHEN 나이 BETWEEN 50 AND 59 THEN '50대'
+        WHEN 나이 BETWEEN 60 AND 69 THEN '60대'
+        WHEN 나이 BETWEEN 70 AND 79 THEN '70대'
+        WHEN 나이 BETWEEN 80 AND 89 THEN '80대'
+        WHEN 나이 BETWEEN 90 AND 99 THEN '90대'
+END AS 연령대
+FROM (SELECT TRUNC(TO_CHAR(SYSDATE,'YYYY') - cust_year_of_birth) AS 나이 FROM CUSTOMERS);
