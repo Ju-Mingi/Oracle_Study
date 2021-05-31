@@ -1033,3 +1033,309 @@ CASE WHEN 나이 BETWEEN 20 AND 29 THEN '20대'
         WHEN 나이 BETWEEN 90 AND 99 THEN '90대'
 END AS 연령대
 FROM (SELECT TRUNC(TO_CHAR(SYSDATE,'YYYY') - cust_year_of_birth) AS 나이 FROM CUSTOMERS);
+
+
+--21.05.31
+
+-- COUNT 쿼리 결과 건수, 전체 로우 수를 반환하는 집계 함수
+SELECT COUNT(*)
+FROM employees;
+
+-- 컬럼 명을 넣기도 함
+-- 107건 조회
+SELECT COUNT(employee_id)
+FROM employees;
+
+-- NULL 이 아닌 건에서만 로우의 수를 반환
+-- 결과를 보면 departmet_id는 106건 조회 됨
+SELECT COUNT(department_id)
+FROM employees;
+
+-- DISTINCT 중복 제거
+SELECT COUNT(DISTINCT department_id)
+FROM employees;
+
+-- NULL 이 포함
+SELECT DISTINCT department_id
+FROM employees
+ORDER BY 1;
+
+-- SUM
+SELECT SUM(salary)
+FROM employees;
+
+-- 중복급여는 1번만 더함
+SELECT SUM(salary), SUM(DISTINCT salary)
+FROM employees;
+
+-- AVG
+SELECT AVG(salary), AVG(DISTINCT salary)
+FROM employees;
+
+-- MIN, MAX
+SELECT MIN(DISTINCT salary), MAX(DISTINCT salary)
+FROM employees;
+
+-- VARIANCE, STDDEV
+-- 분산과 표준편차
+SELECT VARIANCE(salary), STDDEV(salary)
+FROM employees;
+
+-- 특정 그룹으로 묶어 데이터 집계 시 사용
+-- GROUP BY
+
+SELECT department_id, SUM(salary)
+FROM employees
+GROUP BY department_id
+ORDER BY department_id;
+
+SELECT *
+FROM kor_loan_status;
+
+SELECT period, region, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '2013%'
+GROUP BY period, region
+ORDER BY period, region;
+
+-- SELECT 리스트에 있는 컬럼명이나 표현식 중 집계 함수를 제외하고는 모두 GROUP BY 절에
+-- 명시 하여야 함
+SELECT period, region, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '201311'
+GROUP BY region
+ORDER BY region;
+
+-- WHERE 조건을 처리한 결과에 대해 GROUP BY를 수행 후 산출 결과에 대해 다시 조건을 검
+SELECT period, region, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '201311'
+GROUP BY period, region
+-- HAVING 다음에는 SELECT 리스트에 사용했던 집계함수를 이용한 조건을 명시
+HAVING SUM(loan_jan_amt) > 100000
+ORDER BY region;
+
+SELECT period, region, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '201310'
+GROUP BY period, region
+HAVING SUM(loan_jan_amt) < 20000
+ORDER BY totl_jan ASC;
+
+
+-- ROLL UP(expr1, expr2, ...)
+-- GROUP BY절에서 사용됨
+-- expr 로 명시한 표현식을 기준으로 집계한 결과 즉 추가적인 집계 정보를 보여줌
+-- 명시할 수 있는 표현식에는 그룹핑 대상
+-- 명시한 표현식 수와 순서에 따라 레벨 별로 집계함
+-- expr 개수가 n 개라면 n+1 레벨까지 하위에서 상위 레벨 순으로 집계함
+
+SELECT period 기간, gubun 구분, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '2013%'
+GROUP BY period, gubun
+ORDER BY period;
+
+SELECT period 기간, gubun 구분, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '2013%'
+GROUP BY ROLLUP(period, gubun);
+
+SELECT period 기간, gubun 구분, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '2013%'
+GROUP BY period, ROLLUP(gubun);
+
+SELECT period 기간, gubun 구분, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '2013%'
+GROUP BY ROLLUP(period), gubun;
+
+
+-- CUBE 
+-- 명시한 표현식 개수에 따라 가능한 모든 조합별로 집계한결과를 반환
+-- 2의 제곱만큼 종류별로 집계 2^expr
+
+SELECT period, gubun, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '2013%'
+GROUP BY CUBE(period, gubun);
+
+SELECT period, gubun, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '2013%'
+GROUP BY period, CUBE(gubun);
+
+
+
+CREATE TABLE exp_goods_asia(
+country VARCHAR2(10),
+seq NUMBER,
+goods VARCHAR2(80)
+);
+
+INSERT INTO exp_goods_asia VALUES ('한국', 1, '원유제외 석유류');
+INSERT INTO exp_goods_asia VALUES ('한국', 2, '자동차');
+INSERT INTO exp_goods_asia VALUES ('한국', 3, '전자집적회로');
+INSERT INTO exp_goods_asia VALUES ('한국', 4, '선박');
+INSERT INTO exp_goods_asia VALUES ('한국', 5, 'LCD');
+INSERT INTO exp_goods_asia VALUES ('한국', 6, '자동차부품');
+INSERT INTO exp_goods_asia VALUES ('한국', 7, '휴대전화');
+INSERT INTO exp_goods_asia VALUES ('한국', 8, '환식탄화수소');
+INSERT INTO exp_goods_asia VALUES ('한국', 9, '무선송신기 디스플레이 부속품');
+INSERT INTO exp_goods_asia VALUES ('한국', 10, '철 또는 비합금강');
+
+
+INSERT INTO exp_goods_asia VALUES ('일본', 1, '자동차');
+INSERT INTO exp_goods_asia VALUES ('일본', 2, '자동차부품');
+INSERT INTO exp_goods_asia VALUES ('일본', 3, '전자집적회로');
+INSERT INTO exp_goods_asia VALUES ('일본', 4, '선박');
+INSERT INTO exp_goods_asia VALUES ('일본', 5, '반도체웨이퍼');
+INSERT INTO exp_goods_asia VALUES ('일본', 6, '화물차');
+INSERT INTO exp_goods_asia VALUES ('일본', 7, '원유제외 석유류');
+INSERT INTO exp_goods_asia VALUES ('일본', 8, '건설기계');
+INSERT INTO exp_goods_asia VALUES ('일본', 9, '다이오드, 트랜지스터');
+INSERT INTO exp_goods_asia VALUES ('일본', 10, '기계류');
+
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '한국'
+ORDER BY seq;
+
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '일본'
+ORDER BY seq;
+
+-- UNION 합집합
+-- 중복된 항목은 한번만 출력
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '한국'
+UNION
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '일본' ;
+
+-- UNION ALL
+-- 중복된 항목도 모두 조회
+
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '한국'
+UNION ALL
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '일본' ;
+
+-- INTERSECT 교집합
+
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '한국'
+INTERSECT
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '일본';
+
+-- MINUS 차집합
+
+-- 한국에는 있지만 일본에는 없는 수출 품목
+
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '한국'
+MINUS
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '일본';
+
+-- 일본 경우는 위치 바꾸어주면 됨
+
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '일본'
+MINUS
+SELECT goods
+FROM exp_goods_asia
+WHERE country = '한국';
+
+
+-- 집합 연산자의 제한사항
+/* 1. 집합 연산자로 연결되는 각 SELECT문의 SELECT 리스트 개수와 데이터 타입은 일치하여야함
+    2. 집합 연산자로 SELECT문을 연결할 때 ORDER BY 절은 맨 마지막 문자에서만 사용할 수 있다.
+    BLOB, CLOB, BFILE 타입의 컬럼에 대해서는 집합 연산자를  사용할 수 없다.
+    UNION, INTERSECT, MINUS 연산자는 LONG형 컬럼에 사용할 수 없다. */
+    
+-- GROUPING SET
+
+
+-- SELF CHECK
+
+-- 1. 사원테이블에서 입사년도별 사원수를 구하는 쿼리
+
+SELECT TO_CHAR(hire_date,'YYYY') 년도, COUNT(*) 인원수
+FROM employees
+GROUP BY TO_CHAR(hire_date,'YYYY');
+
+-- 2  kor_loan_status 테이블에서 2012년도 월별, 지역별 대출 총 잔액을 구하는 쿼리 작성
+
+SELECT period, region, SUM(loan_jan_amt) 전채부채
+FROM kor_loan_status
+WHERE period LIKE  '2012%'
+GROUP BY ROLLUP(period, region);
+
+-- 3 다음의 쿼리는 분할 ROLLUP
+
+SELECT period, gubun, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period LIKE '2013%'
+GROUP BY period, ROLLUP(gubun);
+-- ROLLUP을 사용하지 않고 집합 연산자로 동일한 결과가 나오도록 쿼리 작성하기
+
+
+SELECT period, gubun, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period Like '2013%'
+GROUP BY period, gubun
+UNION
+SELECT period, null, SUM(loan_jan_amt) totl_jan
+FROM kor_loan_status
+WHERE period Like '2013%'
+GROUP BY period, null;
+
+-- 4 다음 쿼리를 실행해서 결과를 확인하고 집합 연산자로 동일한 결과를 추출하도록 쿼리 작성
+
+SELECT period,
+CASE WHEN gubun = '주택담보대출' THEN SUM(loan_jan_amt) ELSE 0 END 주택담보대출액,
+CASE WHEN gubun = '기타대출' THEN SUM(loan_jan_amt) ELSE 0 END 기타대출액
+FROM kor_loan_status
+WHERE period = '201311'
+GROUP BY period, gubun;
+
+-- INTERSECT
+
+SELECT period, gubun, SUM(loan_jan_amt)
+FROM kor_loan_status
+WHERE period Like '201311'
+GROUP BY period, gubun
+INTERSECT
+SELECT period, gubun, SUM(loan_jan_amt)
+FROM kor_loan_status
+WHERE period Like '201311'
+GROUP BY period, gubun;
+
+-- UNION
+
+SELECT period, SUM(loan_jan_amt) 주택담보대출액, 0 기타대출액
+FROM kor_loan_status
+WHERE period Like '201311' AND gubun = '주택담보대출'
+GROUP BY period
+UNION
+SELECT period, 0, SUM(loan_jan_amt)  기타대출액
+FROM kor_loan_status
+WHERE period Like '201311' AND gubun = '기타대출'
+GROUP BY period;
+
+
+-- 5 다음과 같은 형태, 즉 지역과 각 월별 대출 총 잔액을 구하는 쿼리 작성
